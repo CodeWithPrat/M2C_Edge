@@ -22,9 +22,11 @@ import {
 
 import Signin from './components/SignIn/Signin';
 import Document from './components/Document/Document';
+import RealTimeData from './components/RealTimeData/RealTimeData';
 
 import cmtiLogo from "../src/images/logos/CMTILogo.png"
 import mhiLogo from "../src/images/logos/MHI3.png"
+import M2CLogo from "../src/images/logos/M2CLogo.png"
 
 import pic1 from "./images/RAWPics/IMG20250820110825-removebg-preview.png"
 import pic2 from "./images/RAWPics/IMG20250820111137-removebg-preview.png"
@@ -203,7 +205,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   );
 };
 
-// Header Component
 // Header Component
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
   return (
@@ -398,12 +399,17 @@ const Home = () => {
           {/* Left Side - Module Description */}
           <div className="space-y-8 animate-slide-in-left">
             <div className="bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-gray-700/50 hover:border-blue-500/50 transition-all duration-700 hover:shadow-blue-500/20 hover:-translate-y-2">
-              <div className="flex items-center gap-4 mb-8">
-                <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl">
-                  <Cpu className="w-8 h-8 text-white" />
+              <div className="flex items-center gap-4 mb-5">
+                <div className="">
+                  <img
+                    src={M2CLogo}
+                    alt="M2C Edge Module Logo"
+                    className="w-34 h-20"
+                  />
                 </div>
+
                 <h2 className="text-3xl font-bold text-white">
-                  Industrial Edge Module
+                  M2C Edge Module
                 </h2>
               </div>
 
@@ -595,12 +601,6 @@ const Home = () => {
   );
 };
 
-const RealTimeData = () => (
-  <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-gray-700/50">
-    <h2 className="text-3xl font-bold text-white mb-6">Real-Time Data Dashboard</h2>
-    <p className="text-gray-300 text-lg">Live data streams from connected devices will be displayed here.</p>
-  </div>
-);
 
 const OEE = () => (
   <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-gray-700/50">

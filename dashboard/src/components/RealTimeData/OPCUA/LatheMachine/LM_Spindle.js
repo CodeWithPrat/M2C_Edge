@@ -279,13 +279,6 @@ const Spindle = () => {
       </div>
 
       <div className="relative z-10 p-4 md:p-6 mx-auto">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-5xl lg:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-200 via-gray-400 to-gray-600 mb-2">
-            Spindle
-          </h1>
-        </div>
-
         {/* Gauges Grid */}
         <div className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mx-auto max-w-6xl">

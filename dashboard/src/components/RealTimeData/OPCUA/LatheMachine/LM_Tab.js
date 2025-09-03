@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Cpu, BarChart3, Settings } from 'lucide-react';
-import Spindle from './Spindle';
-import Feeddrive from './Feed_drive';
+import Spindle from './LM_Spindle';
+import Feeddrive from './LM_Feed_drive';
 
 const Tab = () => {
     const [activeTab, setActiveTab] = useState('Spindle');
@@ -54,7 +54,7 @@ const Tab = () => {
                     <div className="flex items-center space-x-4">
                         <div className="text-center">
                             <h1 className="text-2xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-200 via-gray-400 to-gray-600 mb-4">
-                                OPC-UA Protocol Data Monitoring for Ideal Digital Twin
+                                Lathe Machine Data Monitoring
                             </h1>
                             <p className="text-gray-300 text-xl">Real-time Monitoring</p>
                         </div>

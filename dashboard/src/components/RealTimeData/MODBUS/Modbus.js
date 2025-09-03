@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Thermometer, RefreshCw, TrendingUp } from 'lucide-react';
+import { Thermometer, RefreshCw, TrendingUp, Wifi, WifiOff } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const ThermometerDisplay = ({ value, label, type, unit = "°C", index, onGraphClick }) => {
@@ -48,16 +48,17 @@ const ThermometerDisplay = ({ value, label, type, unit = "°C", index, onGraphCl
         <div className="flex items-center space-x-3 text-right">
           <div className="text-right">
             <p className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-200 to-gray-400">
-              {value}{unit}
+              {value !== null ? value : '--'}{unit}
             </p>
             <p className={`text-xs font-semibold ${
+              value === null ? 'text-gray-500' :
               getTemperatureStatus(value) === 'Critical' ? 'text-red-400' :
               getTemperatureStatus(value) === 'Hot' ? 'text-orange-400' :
               getTemperatureStatus(value) === 'Warm' ? 'text-yellow-400' :
               getTemperatureStatus(value) === 'Optimal' ? 'text-green-400' :
               'text-blue-400'
             }`}>
-              {getTemperatureStatus(value)}
+              {value !== null ? getTemperatureStatus(value) : 'No Data'}
             </p>
           </div>
           <button
@@ -83,10 +84,11 @@ const ThermometerDisplay = ({ value, label, type, unit = "°C", index, onGraphCl
               <div className="absolute inset-1 bg-gradient-to-b from-gray-50 to-white rounded-sm overflow-hidden">
                 {/* Temperature Fill - Mercury/Alcohol effect */}
                 <div 
-                  className={`absolute bottom-0 w-full bg-gradient-to-t ${getTemperatureColor(value)} rounded-sm transition-all duration-1000 ease-out`}
+                  className={`absolute bottom-0 w-full bg-gradient-to-t ${value !== null ? getTemperatureColor(value) : 'from-gray-300 to-gray-400'} rounded-sm transition-all duration-1000 ease-out`}
                   style={{ 
-                    height: `${Math.max(percentage, 8)}%`,
+                    height: value !== null ? `${Math.max(percentage, 8)}%` : '8%',
                     boxShadow: `inset 0 0 10px rgba(0,0,0,0.3), 0 0 20px ${
+                      value === null ? 'rgba(128, 128, 128, 0.6)' :
                       value < 20 ? 'rgba(59, 130, 246, 0.6)' :
                       value < 40 ? 'rgba(34, 197, 94, 0.6)' :
                       value < 60 ? 'rgba(234, 179, 8, 0.6)' :
@@ -102,7 +104,7 @@ const ThermometerDisplay = ({ value, label, type, unit = "°C", index, onGraphCl
             </div>
             
             {/* Bulb at bottom */}
-            <div className={`w-14 h-14 bg-gradient-to-br ${getTemperatureColor(value)} rounded-full border-3 border-gray-500 shadow-2xl relative -mt-1`}>
+            <div className={`w-14 h-14 bg-gradient-to-br ${value !== null ? getTemperatureColor(value) : 'from-gray-300 to-gray-400'} rounded-full border-3 border-gray-500 shadow-2xl relative -mt-1`}>
               {/* Bulb reflection */}
               <div className="absolute inset-2 bg-gradient-to-br from-white/40 to-transparent rounded-full"></div>
               {/* Bulb shadow */}
@@ -141,7 +143,8 @@ const TemperatureGraph = ({ sensorData, sensorName, onClose }) => {
     return "#ef4444";
   };
 
-  const avgTemp = sensorData.reduce((sum, item) => sum + item.temperature, 0) / sensorData.length;
+  const validData = sensorData.filter(item => item.temperature !== null);
+  const avgTemp = validData.length > 0 ? validData.reduce((sum, item) => sum + item.temperature, 0) / validData.length : 0;
 
   return (
     <div className="mt-8 bg-gradient-to-br from-gray-800/60 via-gray-900/60 to-black/60 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6">
@@ -165,7 +168,7 @@ const TemperatureGraph = ({ sensorData, sensorName, onClose }) => {
       
       <div className="h-80 w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={sensorData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+          <LineChart data={validData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
             <XAxis 
               dataKey="time" 
@@ -206,15 +209,19 @@ const TemperatureGraph = ({ sensorData, sensorName, onClose }) => {
       <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
         <div className="bg-gray-700/30 rounded-lg p-3">
           <p className="text-gray-400 text-sm">Current</p>
-          <p className="text-white font-bold text-lg">{sensorData[sensorData.length - 1]?.temperature}°C</p>
+          <p className="text-white font-bold text-lg">
+            {validData.length > 0 ? `${validData[validData.length - 1]?.temperature}°C` : '--'}
+          </p>
         </div>
         <div className="bg-gray-700/30 rounded-lg p-3">
           <p className="text-gray-400 text-sm">Average</p>
-          <p className="text-white font-bold text-lg">{avgTemp.toFixed(1)}°C</p>
+          <p className="text-white font-bold text-lg">{validData.length > 0 ? `${avgTemp.toFixed(1)}°C` : '--'}</p>
         </div>
         <div className="bg-gray-700/30 rounded-lg p-3">
           <p className="text-gray-400 text-sm">Max</p>
-          <p className="text-white font-bold text-lg">{Math.max(...sensorData.map(d => d.temperature))}°C</p>
+          <p className="text-white font-bold text-lg">
+            {validData.length > 0 ? `${Math.max(...validData.map(d => d.temperature))}°C` : '--'}
+          </p>
         </div>
       </div>
     </div>
@@ -223,81 +230,122 @@ const TemperatureGraph = ({ sensorData, sensorName, onClose }) => {
 
 const Modbus = () => {
   const [temperatures, setTemperatures] = useState({
-    rtd1: 25,
-    rtd2: 30,
-    rtd3: 35
+    temp1: null,
+    temp2: null,
+    temp3: null
   });
   
   const [temperatureHistory, setTemperatureHistory] = useState({
-    rtd1: [],
-    rtd2: [],
-    rtd3: []
+    temp1: [],
+    temp2: [],
+    temp3: []
   });
   
   const [selectedGraph, setSelectedGraph] = useState(null);
   const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [isConnected, setIsConnected] = useState(false);
+  const [error, setError] = useState(null);
+  const [lastId, setLastId] = useState(0);
 
-  const generateRandomTemperature = (currentTemp) => {
-    // Generate temperature with some variance (-5 to +5 degrees from current)
-    const variance = (Math.random() - 0.5) * 10;
-    let newTemp = currentTemp + variance;
-    
-    // Keep temperature within reasonable bounds (10-95°C)
-    newTemp = Math.max(10, Math.min(95, newTemp));
-    
-    return Math.round(newTemp * 10) / 10; // Round to 1 decimal place
-  };
+  const API_BASE_URL = 'https://cmti-edge.online/M2C/Backend/Modbus_TCP.php';
 
-  const updateTemperatures = () => {
-    const currentTime = new Date();
-    
-    setTemperatures(prev => {
-      const newTemps = {
-        rtd1: generateRandomTemperature(prev.rtd1),
-        rtd2: generateRandomTemperature(prev.rtd2),
-        rtd3: generateRandomTemperature(prev.rtd3)
-      };
+  const fetchTemperatureData = async () => {
+    try {
+      const response = await fetch(`${API_BASE_URL}?last_id=${lastId}&limit=50`);
       
-      // Update temperature history
-      setTemperatureHistory(prevHistory => {
-        const newHistory = { ...prevHistory };
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      if (data.success && data.data && data.data.length > 0) {
+        setIsConnected(true);
+        setError(null);
         
-        Object.keys(newTemps).forEach(sensor => {
-          newHistory[sensor] = [
-            ...prevHistory[sensor],
-            {
-              time: currentTime.toISOString(),
-              temperature: newTemps[sensor]
-            }
-          ].slice(-20); // Keep last 20 readings
+        // Process new data
+        const newData = data.data;
+        const latestRecord = newData[newData.length - 1];
+        
+        // Update current temperatures
+        setTemperatures({
+          temp1: latestRecord.temp1,
+          temp2: latestRecord.temp2,
+          temp3: latestRecord.temp3
         });
         
-        return newHistory;
-      });
+        // Update temperature history
+        setTemperatureHistory(prevHistory => {
+          const newHistory = { ...prevHistory };
+          
+          newData.forEach(record => {
+            const timestamp = record.created_at;
+            
+            // Add to temp1 history
+            if (record.temp1 !== null) {
+              newHistory.temp1 = [...newHistory.temp1, {
+                time: timestamp,
+                temperature: record.temp1
+              }];
+            }
+            
+            // Add to temp2 history
+            if (record.temp2 !== null) {
+              newHistory.temp2 = [...newHistory.temp2, {
+                time: timestamp,
+                temperature: record.temp2
+              }];
+            }
+            
+            // Add to temp3 history
+            if (record.temp3 !== null) {
+              newHistory.temp3 = [...newHistory.temp3, {
+                time: timestamp,
+                temperature: record.temp3
+              }];
+            }
+          });
+          
+          // Keep only last 100 readings for each sensor
+          Object.keys(newHistory).forEach(sensor => {
+            newHistory[sensor] = newHistory[sensor].slice(-100);
+          });
+          
+          return newHistory;
+        });
+        
+        // Update last ID for next fetch
+        setLastId(data.last_id);
+        setLastUpdate(new Date());
+        
+      } else if (data.success && data.data.length === 0) {
+        // No new data, but connection is working
+        setIsConnected(true);
+        setError(null);
+      } else {
+        throw new Error(data.error || 'Failed to fetch data');
+      }
       
-      setLastUpdate(currentTime);
-      return newTemps;
-    });
+    } catch (err) {
+      console.error('Error fetching temperature data:', err);
+      setIsConnected(false);
+      setError(err.message);
+    }
   };
 
+  // Initial data fetch
   useEffect(() => {
-    // Initialize temperature history
-    const currentTime = new Date();
-    const initialHistory = {};
-    
-    Object.keys(temperatures).forEach(sensor => {
-      initialHistory[sensor] = [{
-        time: currentTime.toISOString(),
-        temperature: temperatures[sensor]
-      }];
-    });
-    
-    setTemperatureHistory(initialHistory);
-    
-    // Update temperatures every 3 seconds
-    const interval = setInterval(updateTemperatures, 3000);
-    return () => clearInterval(interval);
+    fetchTemperatureData();
   }, []);
+
+  // Set up polling for new data
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchTemperatureData();
+    }, 3000); // Poll every 3 seconds
+
+    return () => clearInterval(interval);
+  }, [lastId]);
 
   const handleGraphClick = (sensor) => {
     setSelectedGraph({ sensor, data: temperatureHistory[sensor] });
@@ -305,9 +353,9 @@ const Modbus = () => {
 
   const getSensorName = (sensor) => {
     const names = {
-      rtd1: 'Temperature Sensor 1',
-      rtd2: 'Temperature Sensor 2',
-      rtd3: 'Temperature Sensor 3'
+      temp1: 'Temperature Sensor 1',
+      temp2: 'Temperature Sensor 2',
+      temp3: 'Temperature Sensor 3'
     };
     return names[sensor];
   };
@@ -336,39 +384,61 @@ const Modbus = () => {
         <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-start mb-10">
-            <div className="flex items-start justify-start mb-2">
-              <div className="w-2 h-12 bg-gradient-to-b from-gray-400 to-gray-600 rounded-full mr-4"></div>
-              <div>
-                <h2 className="text-4xl font-bold text-white mb-2">MODBUS TCP/IP Temperature Monitoring</h2>
-                <p className="text-gray-400 text-lg">Resistance temperature detectors</p>
+            <div className="flex items-start justify-between mb-2">
+              <div className="flex items-start">
+                <div className="w-2 h-12 bg-gradient-to-b from-gray-400 to-gray-600 rounded-full mr-4"></div>
+                <div>
+                  <h2 className="text-4xl font-bold text-white mb-2">MODBUS TCP/IP Temperature Monitoring</h2>
+                  <p className="text-gray-400 text-lg">Resistance temperature detectors</p>
+                </div>
+              </div>
+              
+              {/* Connection Status */}
+              <div className="flex items-center space-x-2">
+                {isConnected ? (
+                  <div className="flex items-center space-x-2 text-green-400">
+                    <Wifi className="w-5 h-5" />
+                    <span className="text-sm font-medium">Connected</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2 text-red-400">
+                    <WifiOff className="w-5 h-5" />
+                    <span className="text-sm font-medium">Disconnected</span>
+                  </div>
+                )}
               </div>
             </div>
-            <p className="text-gray-500 text-sm ml-6">Last updated: {lastUpdate.toLocaleTimeString()}</p>
+            <div className="ml-6">
+              <p className="text-gray-500 text-sm">
+                Last updated: {lastUpdate.toLocaleTimeString()}
+                {error && <span className="text-red-400 ml-4">Error: {error}</span>}
+              </p>
+            </div>
           </div>
 
           {/* Centered Temperature Cards */}
           <div className="flex justify-center mb-8">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl">
               <ThermometerDisplay 
-                value={temperatures.rtd1} 
+                value={temperatures.temp1} 
                 label="Temperature Sensor 1" 
                 type="RTD Sensor"
                 index={0} 
-                onGraphClick={() => handleGraphClick('rtd1')}
+                onGraphClick={() => handleGraphClick('temp1')}
               />
               <ThermometerDisplay 
-                value={temperatures.rtd2} 
+                value={temperatures.temp2} 
                 label="Temperature Sensor 2" 
                 type="RTD Sensor"
                 index={1} 
-                onGraphClick={() => handleGraphClick('rtd2')}
+                onGraphClick={() => handleGraphClick('temp2')}
               />
               <ThermometerDisplay 
-                value={temperatures.rtd3} 
+                value={temperatures.temp3} 
                 label="Temperature Sensor 3" 
                 type="RTD Sensor"
                 index={2} 
-                onGraphClick={() => handleGraphClick('rtd3')}
+                onGraphClick={() => handleGraphClick('temp3')}
               />
             </div>
           </div>

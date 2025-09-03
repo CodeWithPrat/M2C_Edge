@@ -248,24 +248,6 @@ const Spindle = () => {
 
   return (
     <div className="bg-gradient-to-br from-black via-gray-900 to-black text-white" style={{ willChange: "contents" }}>
-      {/* Connection Status Indicator */}
-      <div className="fixed top-4 right-4 z-50">
-        <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-          connectionStatus === "connected" 
-            ? "bg-green-500/20 text-green-400" 
-            : connectionStatus === "reconnecting"
-            ? "bg-yellow-500/20 text-yellow-400"
-            : "bg-red-500/20 text-red-400"
-        }`}>
-          {connectionStatus === "connected" 
-            ? "Connected" 
-            : connectionStatus === "reconnecting"
-            ? "Reconnecting..."
-            : "Disconnected"
-          }
-        </div>
-      </div>
-
       {/* Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {[
@@ -279,13 +261,6 @@ const Spindle = () => {
       </div>
 
       <div className="relative z-10 p-4 md:p-6 mx-auto">
-        {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-5xl lg:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-200 via-gray-400 to-gray-600 mb-2">
-            Spindle
-          </h1>
-        </div>
-
         {/* Gauges Grid */}
         <div className="mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mx-auto max-w-6xl">
